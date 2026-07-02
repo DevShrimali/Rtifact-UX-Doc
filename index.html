@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rtifact — UX Strategy &amp; Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* ============================================================
+   Rtifact UX Presentation — built in the product's own system
+   Tokens: design.md v1.0 · dark default · one accent · red = critical only
+   ============================================================ */
+:root {
+  --bg-0: #0E0F12; --bg-1: #15171B; --bg-2: #1C1F24;
+  --border-0: #24272E; --border-1: #32363F;
+  --ink-0: #EDEEF0; --ink-1: #9BA0A8; --ink-2: #5E636C;
+  --accent: #8B7CF6; --accent-dim: rgba(139,124,246,.12);
+  --ok: #4CC38A; --ok-dim: rgba(76,195,138,.10);
+  --warn: #F0B429; --warn-dim: rgba(240,180,41,.10);
+  --crit: #F16A50; --crit-dim: rgba(241,106,80,.10);
+  --shadow: 0 8px 24px rgba(0,0,0,.32);
+  --r-s: 6px; --r-m: 10px; --r-l: 14px;
+  --t-fast: 120ms ease-out;
+  --t-move: 200ms cubic-bezier(.2,.8,.2,1);
+}
+[data-theme="light"] {
+  --bg-0: #FAFAF9; --bg-1: #FFFFFF; --bg-2: #F4F4F3;
+  --border-0: #E7E6E4; --border-1: #D6D5D2;
+  --ink-0: #17181A; --ink-1: #5C5F66; --ink-2: #9B9EA5;
+  --accent: #6E56CF; --accent-dim: rgba(110,86,207,.10);
+  --ok: #18794E; --ok-dim: rgba(24,121,78,.08);
+  --warn: #AD5700; --warn-dim: rgba(173,87,0,.08);
+  --crit: #CD2B31; --crit-dim: rgba(205,43,49,.08);
+  --shadow: 0 8px 24px rgba(0,0,0,.12);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0ms !important; animation: none !important; }
+}
+body {
+  margin: 0; background: var(--bg-0); color: var(--ink-0);
+  font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--t-move), color var(--t-move);
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+.micro {
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 16px;
+  text-transform: uppercase; letter-spacing: .05em; color: var(--ink-1);
+}
+a { color: var(--accent); text-decoration: none; }
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-1); border-radius: 8px; }
+svg.lucide { stroke-width: 1.75; }
+
+/* ---------- App layout: sidebar + topbar + content ---------- */
+.app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+
+/* Sidebar — the product's own module navigation pattern */
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--bg-1); border-right: 1px solid var(--border-0);
+  display: flex; flex-direction: column; padding: 16px 12px; gap: 4px;
+}
+.logo { display: flex; align-items: center; gap: 10px; padding: 8px 10px 16px; }
+.logo-mark {
+  width: 26px; height: 26px; border-radius: var(--r-s); background: var(--accent);
+  color: #fff; display: grid; place-items: center;
+  font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 13px; flex: none;
+}
+.logo-name { font-weight: 500; font-size: 14px; letter-spacing: -.01em; }
+.logo-name span { color: var(--ink-1); font-weight: 400; }
+.nav-group-label { padding: 14px 10px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 10px; border: 0; border-radius: var(--r-s);
+  background: transparent; color: var(--ink-1); cursor: pointer;
+  font: inherit; text-align: left;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+.nav-item:hover { background: var(--bg-2); color: var(--ink-0); }
+.nav-item .n { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-2); width: 18px; flex: none; }
+.nav-item svg { width: 15px; height: 15px; flex: none; }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); }
+.nav-item.active .n { color: var(--accent); }
+.sidebar-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-0); display: grid; gap: 8px; }
+.theme-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 10px; border: 1px solid var(--border-0); border-radius: var(--r-s);
+  background: var(--bg-1); color: var(--ink-1); cursor: pointer; font: inherit;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.theme-toggle:hover { border-color: var(--border-1); color: var(--ink-0); }
+.theme-toggle svg { width: 14px; height: 14px; }
+.kbd-hint { padding: 0 10px 4px; color: var(--ink-2); font-size: 11.5px; line-height: 16px; }
+.kbd-hint kbd {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  border: 1px solid var(--border-0); border-radius: 4px; padding: 0 4px;
+  background: var(--bg-2); color: var(--ink-1);
+}
+
+/* Topbar — breadcrumb + stage rail + counter */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 20px;
+  padding: 0 32px; height: 52px;
+  background: var(--bg-0); border-bottom: 1px solid var(--border-0);
+}
+.crumb { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.crumb .sep { color: var(--ink-2); }
+.crumb .leaf { color: var(--ink-0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Stage rail — the product's signature component, reused as deck progress */
+.stage-rail { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.stage { display: flex; align-items: center; gap: 6px; }
+.stage-seg {
+  width: 44px; height: 4px; border-radius: 2px; background: var(--border-0);
+  transition: background-color var(--t-move);
+}
+.stage.done .stage-seg { background: var(--ok); }
+.stage.current .stage-seg { background: var(--accent); }
+.stage-name { font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing:.05em; text-transform: uppercase; color: var(--ink-2); }
+.stage.current .stage-name { color: var(--accent); }
+.stage.done .stage-name { color: var(--ink-1); }
+.counter { font-family:'JetBrains Mono',monospace; font-size: 11.5px; color: var(--ink-1); font-variant-numeric: tabular-nums; }
+
+/* ---------- Content & sections ---------- */
+.content { padding: 0 32px 96px; max-width: 1180px; }
+section.slide { padding: 64px 0 40px; border-bottom: 1px solid var(--border-0); scroll-margin-top: 52px; }
+section.slide:last-child { border-bottom: 0; }
+.eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+h1 { font-size: 28px; line-height: 34px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 10px; }
+h2 { font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -.015em; margin: 0 0 10px; }
+h3 { font-size: 16px; line-height: 22px; font-weight: 500; margin: 0 0 6px; }
+.lede { color: var(--ink-1); max-width: 640px; margin: 0 0 28px; }
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Cards */
+.card {
+  background: var(--bg-1); border: 1px solid var(--border-0);
+  border-radius: var(--r-m); padding: 16px;
+  transition: border-color var(--t-fast);
+}
+.card:hover { border-color: var(--border-1); }
+.card .micro { margin-bottom: 8px; display: block; }
+.subcard { background: var(--bg-0); border: 1px solid var(--border-0); border-radius: var(--r-s); padding: 10px 12px; }
+
+/* Value stat */
+.stat .v { font-family:'JetBrains Mono',monospace; font-size: 22px; line-height: 28px; font-weight: 500; }
+.stat .src { color: var(--ink-2); font-size: 11.5px; line-height: 16px; margin-top: 2px; }
+
+/* Bars */
+.bar-row { display: grid; grid-template-columns: 110px 1fr 44px; align-items: center; gap: 10px; margin-top: 8px; }
+.bar-row .lbl { color: var(--ink-1); font-size: 12px; }
+.bar-track { height: 5px; border-radius: 3px; background: var(--bg-2); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 600ms ease-out; }
+.bar-fill.ok { background: var(--ok); } .bar-fill.warn { background: var(--warn); } .bar-fill.crit { background: var(--crit); }
+.bar-row .val { font-family:'JetBrains Mono',monospace; font-size: 11.5px; color: var(--ink-1); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Badges & tags */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family:'JetBrains Mono',monospace; font-size: 10.5px; letter-spacing:.04em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border-0); color: var(--ink-1); background: var(--bg-1);
+}
+.badge.accent { color: var(--accent); border-color: transparent; background: var(--accent-dim); }
+.badge.ok { color: var(--ok); border-color: transparent; background: var(--ok-dim); }
+.badge.warn { color: var(--warn); border-color: transparent; background: var(--warn-dim); }
+.badge.crit { color: var(--crit); border-color: transparent; background: var(--crit-dim); }
+.tag {
+  display: block; font-size: 12px; line-height: 17px; padding: 5px 9px;
+  border-radius: var(--r-s); margin-top: 6px; border: 1px solid;
+}
+.tag.pain { color: var(--crit); background: var(--crit-dim); border-color: transparent; }
+.tag.gain { color: var(--ok); background: var(--ok-dim); border-color: transparent; }
+
+/* Tables */
+table.dt { width: 100%; border-collapse: collapse; }
+table.dt th {
+  text-align: left; font-family:'JetBrains Mono',monospace; font-weight: 400;
+  font-size: 11px; letter-spacing:.05em; text-transform: uppercase; color: var(--ink-1);
+  padding: 8px 12px; border-bottom: 1px solid var(--border-0);
+}
+table.dt td { padding: 9px 12px; border-bottom: 1px solid var(--border-0); vertical-align: top; }
+table.dt tr:last-child td { border-bottom: 0; }
+table.dt td.c { text-align: center; font-family:'JetBrains Mono',monospace; }
+table.dt th.c { text-align: center; }
+.yes { color: var(--ok); } .no { color: var(--ink-2); }
+
+/* Deep dive expandables — no modals, per design.md */
+details.dive { border: 1px solid var(--border-0); border-radius: var(--r-m); background: var(--bg-1); margin-top: 16px; }
+details.dive > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; color: var(--ink-1); transition: color var(--t-fast);
+}
+details.dive > summary::-webkit-details-marker { display: none; }
+details.dive > summary:hover { color: var(--ink-0); }
+details.dive > summary .chev { margin-left: auto; transition: transform var(--t-move); }
+details.dive[open] > summary .chev { transform: rotate(90deg); }
+details.dive > summary svg { width: 15px; height: 15px; color: var(--accent); }
+.dive-body { padding: 4px 16px 16px; color: var(--ink-1); border-top: 1px solid var(--border-0); }
+.dive-body p { margin: 12px 0 0; }
+.dive-body strong { color: var(--ink-0); font-weight: 500; }
+.dive-body ul { margin: 10px 0 0; padding-left: 18px; }
+.dive-body li { margin-top: 6px; }
+
+/* Quote cards (stakeholders) */
+.quote-card { border-top: 3px solid var(--accent); }
+.quote-card.t-ok { border-top-color: var(--ok); }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%; flex: none;
+  background: var(--accent-dim); color: var(--accent);
+  display: grid; place-items: center;
+  font-family:'JetBrains Mono',monospace; font-size: 11px;
+}
+.avatar.ok { background: var(--ok-dim); color: var(--ok); }
+.qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.qhead .who { font-weight: 500; }
+.qhead .role { color: var(--ink-2); font-size: 11.5px; }
+.quote { color: var(--ink-1); font-style: italic; margin: 0 0 12px; }
+.shapes { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-1); font-size: 12px; }
+.shapes svg { width: 13px; height: 13px; color: var(--accent); }
+
+/* Persona cards */
+.persona .quote { min-height: 56px; }
+.keypain { margin-top: 12px; }
+.keypain .micro { color: var(--crit); }
+.keypain p { margin: 4px 0 0; color: var(--ink-1); font-size: 12.5px; }
+
+/* Tabs (journey personas + nav template modules) */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.tab {
+  font-family:'JetBrains Mono',monospace; font-size: 11px; letter-spacing:.04em; text-transform: uppercase;
+  padding: 7px 12px; border-radius: var(--r-s); cursor: pointer;
+  border: 1px solid var(--border-0); background: var(--bg-1); color: var(--ink-1);
+  transition: color var(--t-fast), border-color var(--t-fast), background-color var(--t-fast);
+}
+.tab:hover { color: var(--ink-0); border-color: var(--border-1); }
+.tab.active { background: var(--accent-dim); border-color: transparent; color: var(--accent); }
+
+/* Journey grid */
+.journey { border: 1px solid var(--border-0); border-radius: var(--r-m); overflow: hidden; background: var(--bg-1); }
+.jrow { display: grid; grid-template-columns: 128px repeat(4, 1fr); border-bottom: 1px solid var(--border-0); }
+.jrow:last-child { border-bottom: 0; }
+.jcell { padding: 12px 14px; border-right: 1px solid var(--border-0); min-width: 0; }
+.jcell:last-child { border-right: 0; }
+.jcell.head { background: var(--bg-0); }
+.jcell.rowlbl { display: flex; align-items: flex-start; gap: 8px; color: var(--ink-1); background: var(--bg-0); }
+.jcell.rowlbl svg { width: 14px; height: 14px; margin-top: 2px; flex: none; }
+.jcell.lev { background: var(--accent-dim); }
+.phase-num {
+  width: 20px; height: 20px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: var(--accent-dim); color: var(--accent);
+  font-family:'JetBrains Mono',monospace; font-size: 11px; margin-right: 8px;
+}
+.jcell .think { color: var(--ink-1); font-style: italic; }
+.jcell .mood { display: block; margin-top: 6px; }
+.sentiment-wrap { grid-column: 2 / -1; padding: 8px 0 0; }
+.sent-labels { display: grid; grid-template-columns: repeat(4,1fr); text-align: center; padding: 0 0 10px; }
+.sent-labels .m { font-family:'JetBrains Mono',monospace; font-size: 10.5px; letter-spacing:.04em; text-transform: uppercase; color: var(--ink-1); }
+.sent-labels .s { color: var(--ink-2); font-size: 11px; }
+
+/* Module Navigation Template — redesigned demo */
+.tpl-wrap { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start; }
+.shell { border: 1px solid var(--border-0); border-radius: var(--r-m); background: var(--bg-1); overflow: hidden; }
+.shell-chrome {
+  display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+  background: var(--bg-0); border-bottom: 1px solid var(--border-0);
+}
+.shell-chrome .dots { display: flex; gap: 5px; }
+.shell-chrome .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--border-1); display: block; }
+.shell-chrome .url { font-family:'JetBrains Mono',monospace; font-size: 11px; color: var(--ink-2); }
+.shell-body { display: grid; grid-template-columns: 118px 1fr; }
+.shell-side { border-right: 1px solid var(--border-0); padding: 10px 8px; background: var(--bg-1); display: grid; gap: 2px; align-content: start; }
+.shell-side .si {
+  display: flex; align-items: center; gap: 7px; padding: 5px 8px; border-radius: var(--r-s);
+  color: var(--ink-2); font-size: 11.5px; transition: background-color var(--t-fast), color var(--t-fast);
+}
+.shell-side .si svg { width: 12px; height: 12px; }
+.shell-side .si.on { background: var(--accent-dim); color: var(--accent); }
+.shell-main { padding: 14px; display: grid; gap: 12px; align-content: start; background: var(--bg-0); }
+.shell-title { display: flex; align-items: center; justify-content: space-between; }
+.shell-title .t { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 13px; }
+.shell-title .t svg { width: 14px; height: 14px; color: var(--accent); }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.kpi { background: var(--bg-1); border: 1px solid var(--border-0); border-radius: var(--r-s); padding: 10px 12px; }
+.kpi .k { font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing:.05em; text-transform: uppercase; color: var(--ink-1); display: block; margin-bottom: 6px; }
+.kpi .v { font-family:'JetBrains Mono',monospace; font-size: 18px; line-height: 24px; }
+.kpi .u { font-size: 10.5px; margin-left: 4px; }
+.kpi .u.ok { color: var(--ok); } .kpi .u.crit { color: var(--crit); } .kpi .u.accent { color: var(--accent); } .kpi .u.muted { color: var(--ink-2); }
+.subnav { display: flex; gap: 18px; border-bottom: 1px solid var(--border-0); padding: 0 2px; }
+.subnav span {
+  font-family:'JetBrains Mono',monospace; font-size: 11px; letter-spacing:.03em;
+  color: var(--ink-2); padding: 4px 0 8px; border-bottom: 2px solid transparent; cursor: default;
+}
+.subnav span.on { color: var(--ink-0); border-bottom-color: var(--accent); }
+.workspace {
+  height: 96px; border: 1px dashed var(--border-1); border-radius: var(--r-s);
+  display: grid; place-items: center; color: var(--ink-2);
+}
+.tpl-fade { animation: tplfade 200ms ease-out; }
+@keyframes tplfade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.contract li { margin-top: 10px; color: var(--ink-1); }
+.contract li strong { color: var(--ink-0); font-weight: 500; }
+
+/* IA tree */
+.ia { display: grid; gap: 0; justify-items: center; }
+.ia-card { width: 100%; max-width: 640px; }
+.ia-link { width: 1px; height: 26px; background: var(--border-1); }
+.ia-modules { width: 100%; position: relative; padding-top: 26px; }
+.ia-modules::before {
+  content: ""; position: absolute; top: 0; left: 16.66%; right: 16.66%;
+  height: 1px; background: var(--border-1);
+}
+.ia-modules::after {
+  content: ""; position: absolute; top: -26px; left: 50%; width: 1px; height: 26px; background: var(--border-1);
+}
+.ia-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; position: relative; }
+.ia-col { position: relative; }
+.ia-col::before {
+  content: ""; position: absolute; top: -26px; left: 50%; width: 1px; height: 26px; background: var(--border-1);
+}
+.ia-col .mod-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ia-col .mod-head svg { width: 15px; height: 15px; color: var(--accent); }
+.ia-col .mod-sub { color: var(--ink-1); font-size: 12px; margin: 0 0 10px; }
+.ia-item { display: flex; gap: 8px; align-items: baseline; }
+.ia-item + .ia-item { margin-top: 6px; }
+.ia-item .n { font-family:'JetBrains Mono',monospace; font-size: 10.5px; color: var(--accent); flex: none; }
+.ia-item .note { display: block; color: var(--ink-2); font-size: 11.5px; margin-top: 1px; }
+.spine { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.spine .st {
+  font-family:'JetBrains Mono',monospace; font-size: 10.5px; letter-spacing:.04em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border-0); color: var(--ink-1);
+}
+.spine .arrow { color: var(--ink-2); font-family:'JetBrains Mono',monospace; font-size: 11px; }
+
+/* Cover */
+#s-cover { padding-top: 88px; }
+.cover-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0 34px; }
+.triad { margin-top: 8px; }
+.triad .card { display: flex; gap: 12px; align-items: flex-start; }
+.triad svg { width: 17px; height: 17px; color: var(--accent); margin-top: 2px; flex: none; }
+.triad .t { font-weight: 500; margin-bottom: 2px; }
+.triad .d { color: var(--ink-1); font-size: 12.5px; }
+.hero-title { font-size: 40px; line-height: 46px; font-weight: 600; letter-spacing: -.025em; margin: 0 0 14px; }
+.hero-title .mono-accent { color: var(--accent); }
+.hmw { border-left: 3px solid var(--accent); padding: 4px 0 4px 18px; margin: 22px 0; font-size: 17px; line-height: 26px; color: var(--ink-0); max-width: 720px; }
+.hmw em { color: var(--accent); font-style: normal; }
+.hmw em.ok { color: var(--ok); }
+
+/* Do / Don't columns */
+.dd-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.dd-head svg { width: 15px; height: 15px; }
+.mini-flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.chip {
+  font-family:'JetBrains Mono',monospace; font-size: 10.5px;
+  border: 1px solid var(--border-0); border-radius: var(--r-s); padding: 3px 8px; color: var(--ink-1); background: var(--bg-0);
+}
+.chip.accent { color: var(--accent); background: var(--accent-dim); border-color: transparent; }
+.chip.ok { color: var(--ok); background: var(--ok-dim); border-color: transparent; }
+.chip.crit { color: var(--crit); background: var(--crit-dim); border-color: transparent; }
+.mini-flow .arr { color: var(--ink-2); font-family:'JetBrains Mono',monospace; }
+
+/* Feature cards */
+.feature svg.fic { width: 16px; height: 16px; color: var(--accent); }
+.feature .fhead { display: flex; align-items: center; gap: 9px; margin-bottom: 6px; }
+.feature p { color: var(--ink-1); margin: 0 0 10px; font-size: 12.5px; }
+
+/* Venn */
+.venn-wrap { display: grid; place-items: center; padding: 8px 0; }
+
+/* Responsive */
+@media (max-width: 1020px) {
+  .g4 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(2, 1fr); }
+  .tpl-wrap { grid-template-columns: 1fr; }
+  .stage-name { display: none; }
+}
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; z-index: 90; height: auto; inset: auto 0 0 0; flex-direction: row; overflow-x: auto; padding: 8px; border-top: 1px solid var(--border-0); border-right: 0; }
+  .logo, .nav-group-label, .sidebar-footer { display: none; }
+  .nav-item { flex: none; }
+  .content { padding: 0 18px 140px; }
+  .topbar { padding: 0 18px; }
+  .g2, .g3, .g4 { grid-template-columns: 1fr; }
+  .jrow { grid-template-columns: 100px repeat(4, minmax(150px, 1fr)); }
+  .journey { overflow-x: auto; }
+  .stage-rail { display: none; }
+  .hero-title { font-size: 30px; line-height: 36px; }
+  .shell-body { grid-template-columns: 1fr; }
+  .shell-side { display: flex; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border-0); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-mark">R</div>
+      <div class="logo-name">Rtifact <span>/ UX</span></div>
+    </div>
+
+    <span class="nav-group-label micro">Intro</span>
+    <button class="nav-item" data-target="s-cover"><span class="n">00</span><i data-lucide="play"></i>Overview</button>
+
+    <span class="nav-group-label micro">Discover</span>
+    <button class="nav-item" data-target="s-audit"><span class="n">01</span><i data-lucide="layout-grid"></i>Competitive audit</button>
+    <button class="nav-item" data-target="s-stakeholders"><span class="n">02</span><i data-lucide="search"></i>Stakeholders</button>
+    <button class="nav-item" data-target="s-personas"><span class="n">03</span><i data-lucide="users"></i>Personas</button>
+    <button class="nav-item" data-target="s-empathy"><span class="n">04</span><i data-lucide="heart"></i>Empathy maps</button>
+    <button class="nav-item" data-target="s-journey"><span class="n">05</span><i data-lucide="map"></i>Journey map</button>
+
+    <span class="nav-group-label micro">Define</span>
+    <button class="nav-item" data-target="s-problem"><span class="n">06</span><i data-lucide="target"></i>Problem scope</button>
+    <button class="nav-item" data-target="s-features"><span class="n">07</span><i data-lucide="list"></i>Core features</button>
+
+    <span class="nav-group-label micro">Structure</span>
+    <button class="nav-item" data-target="s-template"><span class="n">08</span><i data-lucide="layout"></i>Module template</button>
+    <button class="nav-item" data-target="s-ia"><span class="n">09</span><i data-lucide="folder-tree"></i>Information architecture</button>
+
+    <div class="sidebar-footer">
+      <div class="kbd-hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> sections &nbsp;&nbsp;<kbd>T</kbd> theme</div>
+      <button class="theme-toggle" id="theme-toggle">
+        <span>Theme</span><i data-lucide="sun" id="theme-icon"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN ==================== -->
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb mono" style="font-size:11.5px">
+        <span style="color:var(--ink-1)">RTIFACT-UX</span>
+        <span class="sep">/</span>
+        <span id="crumb-phase" style="color:var(--ink-1)">INTRO</span>
+        <span class="sep">/</span>
+        <span class="leaf" id="crumb-leaf">00 · OVERVIEW</span>
+      </div>
+      <div class="stage-rail" id="stage-rail">
+        <div class="stage" data-phase="DISCOVER"><span class="stage-name">Discover</span><span class="stage-seg"></span></div>
+        <div class="stage" data-phase="DEFINE"><span class="stage-name">Define</span><span class="stage-seg"></span></div>
+        <div class="stage" data-phase="STRUCTURE"><span class="stage-name">Structure</span><span class="stage-seg"></span></div>
+      </div>
+      <div class="counter" id="counter">01 / 10</div>
+    </header>
+
+    <main class="content">
+
+      <!-- ==================== 00 COVER ==================== -->
+      <section class="slide" id="s-cover" data-phase="INTRO" data-label="00 · OVERVIEW">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">UX strategy · discover &rarr; define &rarr; structure</span></div>
+        <h1 class="hero-title">Rtifact UX Map<br><span class="mono-accent">reactive firefighting &rarr; proactive intelligence</span></h1>
+        <p class="lede" style="font-size:15px;line-height:23px">A holistic design strategy shifting cloud infrastructure management from reactive firefighting to proactive AI intelligence — presented in the product's own design system.</p>
+
+        <div class="cover-meta">
+          <span class="badge accent">v2.0 · redesigned</span>
+          <span class="badge">phase: discover &rarr; ideate handoff</span>
+          <span class="badge ok">sign-off: Matt (CEO) · Sunil (DevOps)</span>
+        </div>
+
+        <div class="grid g3 triad">
+          <div class="card"><i data-lucide="eye"></i><div><div class="t">Watch</div><div class="d">Unified monitoring — logs, metrics and traces on one timeline.</div></div></div>
+          <div class="card"><i data-lucide="brain"></i><div><div class="t">Think</div><div class="d">AI investigation — root cause isolated before a human opens a tab.</div></div></div>
+          <div class="card"><i data-lucide="zap"></i><div><div class="t">Act</div><div class="d">Auto-remediation — trigger &rarr; condition &rarr; action, one click to fix.</div></div></div>
+        </div>
+      </section>
+
+      <!-- ==================== 01 AUDIT ==================== -->
+      <section class="slide" id="s-audit" data-phase="DISCOVER" data-label="01 · COMPETITIVE AUDIT">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Discover / 01</span></div>
+        <h2>Competitive audit &amp; market opportunities</h2>
+        <p class="lede">The market splits into engineer-only tools and executive-only tools. Nobody bridges the two — that gap is the product.</p>
+
+        <div class="grid g3">
+          <div class="card">
+            <span class="micro">Platform focus index</span>
+            <h3>PointFive <span class="badge warn" style="margin-left:6px">FinOps bias</span></h3>
+            <div class="bar-row"><span class="lbl">FinOps focus</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="val">80%</span></div>
+            <div class="bar-row"><span class="lbl">SRE focus</span><div class="bar-track"><div class="bar-fill" style="width:25%"></div></div><span class="val">25%</span></div>
+          </div>
+          <div class="card">
+            <span class="micro">Platform focus index</span>
+            <h3>Dash0 <span class="badge warn" style="margin-left:6px">Developer bias</span></h3>
+            <div class="bar-row"><span class="lbl">FinOps focus</span><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><span class="val">20%</span></div>
+            <div class="bar-row"><span class="lbl">SRE focus</span><div class="bar-track"><div class="bar-fill" style="width:85%"></div></div><span class="val">85%</span></div>
+          </div>
+          <div class="card" style="border-color:var(--accent)">
+            <span class="micro" style="color:var(--accent)">Platform focus index</span>
+            <h3>Rtifact <span class="badge accent" style="margin-left:6px">Unified balance</span></h3>
+            <div class="bar-row"><span class="lbl">FinOps focus</span><div class="bar-track"><div class="bar-fill ok" style="width:85%"></div></div><span class="val">85%</span></div>
+            <div class="bar-row"><span class="lbl">SRE focus</span><div class="bar-track"><div class="bar-fill ok" style="width:95%"></div></div><span class="val">95%</span></div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card">
+            <span class="micro">Feature matrix</span>
+            <table class="dt">
+              <thead><tr><th>Capability</th><th class="c">Dash0</th><th class="c">Pt.Five</th><th class="c">Rtifact</th></tr></thead>
+              <tbody>
+                <tr><td>Unified telemetry view</td><td class="c no">&#10007;</td><td class="c no">&#10007;</td><td class="c yes">&#10003;</td></tr>
+                <tr><td>AI root cause engine</td><td class="c no">&#10007;</td><td class="c no">&#10007;</td><td class="c yes">&#10003;</td></tr>
+                <tr><td>Exec ROI / FinOps reporting</td><td class="c no">&#10007;</td><td class="c yes">&#10003;</td><td class="c yes">&#10003;</td></tr>
+                <tr><td>Auto-remediation flows</td><td class="c no">&#10007;</td><td class="c no">&#10007;</td><td class="c yes">&#10003;</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <span class="micro">Comparative UX scores</span>
+            <div style="margin-top:4px">
+              <div class="micro" style="font-size:10.5px;color:var(--ink-2)">Ease of setup / time-to-value</div>
+              <div class="bar-row"><span class="lbl">Dash0</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--ink-2)"></div></div><span class="val">2.5</span></div>
+              <div class="bar-row"><span class="lbl">PointFive</span><div class="bar-track"><div class="bar-fill" style="width:65%;background:var(--ink-2)"></div></div><span class="val">6.5</span></div>
+              <div class="bar-row"><span class="lbl">Rtifact</span><div class="bar-track"><div class="bar-fill ok" style="width:90%"></div></div><span class="val">9.0</span></div>
+              <div class="micro" style="font-size:10.5px;color:var(--ink-2);margin-top:14px">Context-switching friction (lower is better)</div>
+              <div class="bar-row"><span class="lbl">Dash0</span><div class="bar-track"><div class="bar-fill crit" style="width:80%"></div></div><span class="val">8.0</span></div>
+              <div class="bar-row"><span class="lbl">PointFive</span><div class="bar-track"><div class="bar-fill warn" style="width:50%"></div></div><span class="val">5.0</span></div>
+              <div class="bar-row"><span class="lbl">Rtifact</span><div class="bar-track"><div class="bar-fill ok" style="width:15%"></div></div><span class="val">1.5</span></div>
+              <div class="micro" style="font-size:10.5px;color:var(--ink-2);margin-top:14px">Executive financial communication</div>
+              <div class="bar-row"><span class="lbl">Dash0</span><div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--ink-2)"></div></div><span class="val">1.5</span></div>
+              <div class="bar-row"><span class="lbl">PointFive</span><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--ink-2)"></div></div><span class="val">7.5</span></div>
+              <div class="bar-row"><span class="lbl">Rtifact</span><div class="bar-track"><div class="bar-fill ok" style="width:95%"></div></div><span class="val">9.5</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card">
+            <div class="dd-head"><i data-lucide="x-octagon" style="color:var(--crit)"></i><h3 style="margin:0">UX failure patterns — avoid</h3></div>
+            <div class="subcard" style="margin-top:8px">
+              <strong style="font-weight:500">Heavy modal overlays</strong>
+              <p style="margin:4px 0 8px;color:var(--ink-1);font-size:12.5px">Stacking modals that obscure background context. Leaves SREs disoriented.</p>
+              <span class="badge crit">lost context</span>
+            </div>
+            <div class="subcard" style="margin-top:10px">
+              <strong style="font-weight:500">Fragmented telemetry tabs</strong>
+              <p style="margin:4px 0 8px;color:var(--ink-1);font-size:12.5px">Forcing tab-jumping to cross-reference logs, metrics and trace telemetry.</p>
+              <div class="mini-flow"><span class="chip">Logs</span><span class="arr">&harr;</span><span class="chip">Metrics</span><span class="arr">&harr;</span><span class="chip">Traces</span><span class="badge crit" style="margin-left:6px">tab jumping</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="dd-head"><i data-lucide="check" style="color:var(--ok)"></i><h3 style="margin:0">What works — borrow these</h3></div>
+            <div class="subcard" style="margin-top:8px"><strong style="font-weight:500">Minimalist dark-first UI</strong><p style="margin:4px 0 0;color:var(--ink-1);font-size:12.5px">High contrast, crisp typography, clean spacing, clear visual grids without clutter.</p></div>
+            <div class="subcard" style="margin-top:10px"><strong style="font-weight:500">Breadcrumb navigation path</strong><p style="margin:4px 0 0;color:var(--ink-1);font-size:12.5px">Replacing context-disrupting modal boxes with inline breadcrumb drill-down routes.</p></div>
+            <div class="subcard" style="margin-top:10px"><strong style="font-weight:500">Bottom-up SaaS loop</strong><p style="margin:4px 0 0;color:var(--ink-1);font-size:12.5px">Self-serve value realization before demanding enterprise configuration commitment.</p></div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card">
+            <span class="micro" style="color:var(--accent)">Blue ocean 01</span>
+            <h3>The SRE-to-Executive bridge</h3>
+            <p style="color:var(--ink-1);margin:0;font-size:12.5px">Connect granular root-cause incident telemetry with high-level FinOps cloud cost impact in real time.</p>
+            <div class="mini-flow"><span class="chip">SRE logs</span><span class="arr">&rarr;</span><span class="chip accent">AI unifier</span><span class="arr">&rarr;</span><span class="chip ok">Exec ROI</span></div>
+          </div>
+          <div class="card">
+            <span class="micro" style="color:var(--accent)">Blue ocean 02</span>
+            <h3>Trigger-condition-action automation</h3>
+            <p style="color:var(--ink-1);margin:0;font-size:12.5px">Present automated remediation as a clear flow — if alert X, then remediate with action Y — reducing SRE trust barriers.</p>
+            <div class="mini-flow"><span class="chip crit">Alert X</span><span class="arr">&rarr;</span><span class="chip">Condition</span><span class="arr">&rarr;</span><span class="chip ok">Action Y</span></div>
+          </div>
+        </div>
+
+        <details class="dive">
+          <summary><i data-lucide="trending-up"></i><span>Deep dive — the strategic gap</span><i data-lucide="chevron-right" class="chev"></i></summary>
+          <div class="dive-body">
+            <p><strong>Tools like Dash0 &amp; SigNoz</strong> are highly technical, catering only to engineers but failing to communicate business value (ROI / FinOps) to leadership.</p>
+            <p><strong>Tools like PointFive</strong> cater well to executives with cost metrics, but lack the granular, actionable telemetry SREs need to actually fix issues.</p>
+            <p><strong>Rtifact's positioning:</strong> a minimalist, typography-led UI presents high-level ROI to Raj (VP) on the overview, while Priya (SRE) drills down via breadcrumbs into unified telemetry — both personas served by one platform.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ==================== 02 STAKEHOLDERS ==================== -->
+      <section class="slide" id="s-stakeholders" data-phase="DISCOVER" data-label="02 · STAKEHOLDERS">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Discover / 02</span></div>
+        <h2>Core stakeholder insights</h2>
+        <p class="lede">Internal team interviews driving the product vision — each insight maps directly to a target persona.</p>
+
+        <div class="grid g3">
+          <div class="card quote-card">
+            <div class="qhead"><div class="avatar">SU</div><div><div class="who">Sunil</div><div class="role">DevOps Engineering</div></div></div>
+            <p class="quote">"Consolidate diagnostic info into a single unified tab. Replace complex modals with breadcrumb navigation."</p>
+            <span class="shapes"><i data-lucide="arrow-right"></i>Shapes <strong style="font-weight:500;margin-left:3px">Priya (SRE)</strong></span>
+          </div>
+          <div class="card quote-card">
+            <div class="qhead"><div class="avatar">MA</div><div><div class="who">Matt</div><div class="role">CEO</div></div></div>
+            <p class="quote">"Crisp, clean, transparent aesthetic. We need bottom-up self-serve and must show executive ROI immediately."</p>
+            <span class="shapes"><i data-lucide="arrow-right"></i>Shapes <strong style="font-weight:500;margin-left:3px">Raj (VP)</strong></span>
+          </div>
+          <div class="card quote-card t-ok">
+            <div class="qhead"><div class="avatar ok">VE</div><div><div class="who">Venkat</div><div class="role">Architecture</div></div></div>
+            <p class="quote">"Declutter the interface. Reveal info step-by-step to avoid overwhelming users. Focus on signals."</p>
+            <span class="shapes"><i data-lucide="arrow-right"></i>Shapes <strong style="font-weight:500;margin-left:3px">Arjun (Jr)</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 03 PERSONAS ==================== -->
+      <section class="slide" id="s-personas" data-phase="DISCOVER" data-label="03 · PERSONAS">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Discover / 03</span></div>
+        <h2>Target user personas</h2>
+        <p class="lede">Four users, four altitudes — from firefighting SRE to board-facing VP. Every screen must answer at least one of them above the fold.</p>
+
+        <div class="grid g2">
+          <div class="card persona">
+            <div class="qhead"><div class="avatar">PS</div><div><div class="who">Priya Sharma</div><div class="role">Primary · SRE Lead</div></div><span class="badge accent" style="margin-left:auto">primary</span></div>
+            <p class="quote">"I need to stop playing detective and start preventing fires."</p>
+            <span class="micro">User traits</span>
+            <div class="bar-row"><span class="lbl">Alert fatigue</span><div class="bar-track"><div class="bar-fill crit" style="width:95%"></div></div><span class="val">95%</span></div>
+            <div class="bar-row"><span class="lbl">Automation comfort</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div><span class="val">40%</span></div>
+            <div class="keypain"><span class="micro">Key pain</span><p>Drowning in alert noise; constant context switching to debug.</p></div>
+          </div>
+          <div class="card persona">
+            <div class="qhead"><div class="avatar">RP</div><div><div class="who">Raj Patel</div><div class="role">Secondary · VP of Engineering</div></div><span class="badge" style="margin-left:auto">secondary</span></div>
+            <p class="quote">"I don't need more data. I need to know if we're saving money and time."</p>
+            <span class="micro">User traits</span>
+            <div class="bar-row"><span class="lbl">FinOps / cost focus</span><div class="bar-track"><div class="bar-fill ok" style="width:95%"></div></div><span class="val">95%</span></div>
+            <div class="bar-row"><span class="lbl">Tech detail demand</span><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><span class="val">20%</span></div>
+            <div class="keypain"><span class="micro">Key pain</span><p>Cannot quantify engineering efficiency or cloud spend changes.</p></div>
+          </div>
+          <div class="card persona">
+            <div class="qhead"><div class="avatar">AR</div><div><div class="who">Arjun Reddy</div><div class="role">Tertiary · Junior Engineer</div></div><span class="badge" style="margin-left:auto">tertiary</span></div>
+            <p class="quote">"I want to help, but I'm afraid I'll break something in production."</p>
+            <span class="micro">User traits</span>
+            <div class="bar-row"><span class="lbl">Outage anxiety</span><div class="bar-track"><div class="bar-fill crit" style="width:85%"></div></div><span class="val">85%</span></div>
+            <div class="bar-row"><span class="lbl">System autonomy</span><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div><span class="val">30%</span></div>
+            <div class="keypain"><span class="micro">Key pain</span><p>Overwhelmed by massive charts; fears execution errors.</p></div>
+          </div>
+          <div class="card persona">
+            <div class="qhead"><div class="avatar">SJ</div><div><div class="who">Sarah Jenkins</div><div class="role">Draft-inferred · Support Liaison</div></div><span class="badge" style="margin-left:auto">inferred</span></div>
+            <p class="quote">"I need to give clients status updates and trigger safe hotfixes without bugging SRE for every ticket."</p>
+            <span class="micro">User traits</span>
+            <div class="bar-row"><span class="lbl">Escalation relief</span><div class="bar-track"><div class="bar-fill ok" style="width:85%"></div></div><span class="val">85%</span></div>
+            <div class="bar-row"><span class="lbl">Tech diagnostics</span><div class="bar-track"><div class="bar-fill" style="width:25%"></div></div><span class="val">25%</span></div>
+            <div class="keypain"><span class="micro">Key pain</span><p>Manual ticket tracing; long feedback loops to confirm customer complaints.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 04 EMPATHY ==================== -->
+      <section class="slide" id="s-empathy" data-phase="DISCOVER" data-label="04 · EMPATHY MAPS">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Discover / 04</span></div>
+        <h2>Empathy maps</h2>
+        <p class="lede">What each persona says, thinks and feels during an incident — the raw material behind every design decision.</p>
+
+        <div class="grid g4">
+          <div class="card">
+            <div class="qhead"><div class="avatar">PS</div><div class="who">Priya <span class="role">· SRE</span></div></div>
+            <span class="micro">Says</span>
+            <p class="quote" style="margin-bottom:12px">"Why isn't this telemetry correlated? I'm tired of playing detective."</p>
+            <span class="micro">Thinks</span>
+            <p class="quote" style="margin-bottom:12px">"I shouldn't have to check 3 tools to debug 1 issue. The AI should tell me what's wrong."</p>
+            <span class="micro">Feels</span>
+            <p style="color:var(--ink-1);margin:4px 0 0;font-size:12.5px">Frustrated by alert fatigue. Overwhelmed by data but starved for insights.</p>
+          </div>
+          <div class="card">
+            <div class="qhead"><div class="avatar">RP</div><div class="who">Raj <span class="role">· VP</span></div></div>
+            <span class="micro">Says</span>
+            <p class="quote" style="margin-bottom:12px">"I need to justify our cloud spend to the board this quarter."</p>
+            <span class="micro">Thinks</span>
+            <p class="quote" style="margin-bottom:12px">"Are my engineers spending all their time firefighting instead of building?"</p>
+            <span class="micro">Feels</span>
+            <p style="color:var(--ink-1);margin:4px 0 0;font-size:12.5px">Disconnected from ground-level engineering realities. Pressured by budgets.</p>
+          </div>
+          <div class="card">
+            <div class="qhead"><div class="avatar">AR</div><div class="who">Arjun <span class="role">· Junior</span></div></div>
+            <span class="micro">Says</span>
+            <p class="quote" style="margin-bottom:12px">"Can someone show me how to safely restart the pod?"</p>
+            <span class="micro">Thinks</span>
+            <p class="quote" style="margin-bottom:12px">"This dashboard has 50 charts. Where am I supposed to look first?"</p>
+            <span class="micro">Feels</span>
+            <p style="color:var(--ink-1);margin:4px 0 0;font-size:12.5px">Anxious about causing an outage. Eager to learn standard operating procedures.</p>
+          </div>
+          <div class="card">
+            <div class="qhead"><div class="avatar">SJ</div><div class="who">Sarah <span class="role">· Support</span></div></div>
+            <span class="micro">Says</span>
+            <p class="quote" style="margin-bottom:12px">"Client reports a 500 error at 3 PM, but the system dashboard is green."</p>
+            <span class="micro">Thinks</span>
+            <p class="quote" style="margin-bottom:12px">"If I can see client telemetry at complaint timestamps, I won't have to escalate."</p>
+            <span class="micro">Feels</span>
+            <p style="color:var(--ink-1);margin:4px 0 0;font-size:12.5px">Stressed by customers; anxious about escalating false alarms to Priya.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 05 JOURNEY ==================== -->
+      <section class="slide" id="s-journey" data-phase="DISCOVER" data-label="05 · JOURNEY MAP">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Discover / 05</span></div>
+        <h2>User journey map</h2>
+        <p class="lede">The incident resolution workflow, per persona: what they do, feel, and where stress peaks — and the exact UX gain designed for each stage.</p>
+
+        <div class="tabs" id="journey-tabs"></div>
+        <div id="journey-out"></div>
+
+        <details class="dive">
+          <summary><i data-lucide="zap"></i><span>Deep dive — transforming pains into gains</span><i data-lucide="chevron-right" class="chev"></i></summary>
+          <div class="dive-body">
+            <p><strong>1 · Triage stage.</strong> Pain: context switching across tabs. Gain: the Unified Telemetry view locks logs, metrics and traces into the same temporal context.</p>
+            <p><strong>2 · Investigation stage.</strong> Pain: playing detective manually. Gain: the Incident Causal Chain &amp; SLO Budget view provides a direct cause &rarr; effect path, a confidence-ranked "What changed" list, and error-budget gauges (with a fallback warning if Deployment Intelligence is disconnected).</p>
+            <p><strong>3 · Reporting stage.</strong> Pain: hard to prove value to the VP. Gain: automated audit logs feed directly into the Executive ROI dashboard.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ==================== 06 PROBLEM ==================== -->
+      <section class="slide" id="s-problem" data-phase="DEFINE" data-label="06 · PROBLEM SCOPE">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Define / 06</span></div>
+        <h2>Core problem — human-centered design scope</h2>
+
+        <blockquote class="hmw">
+          "How might we empower <em>engineers</em> to instantly resolve cloud issues without context-switching, while visually proving <em class="ok">ROI value</em> to leadership through a radically simplified interface?"
+        </blockquote>
+
+        <div class="grid g2">
+          <div class="card venn-wrap">
+            <svg width="360" height="230" viewBox="0 0 360 230" role="img" aria-label="Value intersection: SRE efficiency, executive ROI, safe remediation">
+              <circle cx="135" cy="95" r="68" fill="var(--accent)" opacity="0.10"/>
+              <circle cx="135" cy="95" r="68" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <circle cx="225" cy="95" r="68" fill="var(--ok)" opacity="0.10"/>
+              <circle cx="225" cy="95" r="68" fill="none" stroke="var(--ok)" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <circle cx="180" cy="145" r="68" fill="var(--accent)" opacity="0.07"/>
+              <circle cx="180" cy="145" r="68" fill="none" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <text x="88" y="58" fill="var(--accent)" font-size="9" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="0.5">SRE</text>
+              <text x="88" y="70" fill="var(--accent)" font-size="9" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="0.5">EFFICIENCY</text>
+              <text x="272" y="58" fill="var(--ok)" font-size="9" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="0.5">EXECUTIVE</text>
+              <text x="272" y="70" fill="var(--ok)" font-size="9" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="0.5">ROI</text>
+              <text x="180" y="222" fill="var(--ink-1)" font-size="9" font-family="JetBrains Mono, monospace" text-anchor="middle" letter-spacing="0.5">SAFE REMEDIATION</text>
+              <circle cx="180" cy="110" r="5" fill="var(--accent)"/>
+              <text x="180" y="96" fill="var(--ink-0)" font-size="9" font-family="JetBrains Mono, monospace" font-weight="500" text-anchor="middle" letter-spacing="1">RTIFACT</text>
+            </svg>
+          </div>
+          <div style="display:grid;gap:16px;align-content:start">
+            <div class="card">
+              <span class="micro" style="color:var(--crit)">Current state</span>
+              <p style="margin:4px 0 0;color:var(--ink-1)">Engineers spend <span class="mono" style="color:var(--ink-0)">70%</span> of incident time correlating logs and metrics manually. The core issue isn't a lack of data — it's a lack of synthesis.</p>
+            </div>
+            <div class="card">
+              <span class="micro" style="color:var(--ok)">Rtifact state</span>
+              <p style="margin:4px 0 0;color:var(--ink-1)">AI auto-correlates telemetry, shifting engineer focus from <em>"detective work"</em> to <em>"approving the fix."</em></p>
+            </div>
+            <div class="card">
+              <span class="micro">Design principle</span>
+              <p style="margin:4px 0 0;color:var(--ink-1)">Delete until we've deleted too much — we'll put it back. Every screen answers one question per persona above the fold; everything else is progressively disclosed.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 07 FEATURES ==================== -->
+      <section class="slide" id="s-features" data-phase="DEFINE" data-label="07 · CORE FEATURES">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Define / 07</span></div>
+        <h2>Core features — minimalist UI</h2>
+        <p class="lede">Six capabilities, each mapped to a persona pain from the journey map. No feature exists without an owner.</p>
+
+        <div class="grid g3">
+          <div class="card feature">
+            <div class="fhead"><i data-lucide="layers" class="fic"></i><h3 style="margin:0">Unified telemetry view</h3></div>
+            <p>Logs, metrics and traces co-located on a single timeline.</p>
+            <div class="mini-flow"><span class="chip accent">LOGS</span><span class="chip accent">METRICS</span><span class="chip accent">TRACES</span></div>
+          </div>
+          <div class="card feature">
+            <div class="fhead"><i data-lucide="trending-up" class="fic"></i><h3 style="margin:0">Executive ROI dashboard</h3></div>
+            <p>Quantifiable cost, risk and efficiency metrics for the board.</p>
+            <div class="mini-flow"><span class="chip ok">+$142.5k saved</span><span class="chip">&minus;82% risk</span><span class="chip">+2.45k h</span></div>
+          </div>
+          <div class="card feature">
+            <div class="fhead"><i data-lucide="bot" class="fic"></i><h3 style="margin:0">Detect-Assess-Act engine</h3></div>
+            <p>Autonomous root-cause investigation with 1-click remediation.</p>
+            <div class="mini-flow"><span class="chip crit">alert</span><span class="arr">&rarr;</span><span class="chip">root cause</span><span class="arr">&rarr;</span><span class="chip ok">remediation</span></div>
+          </div>
+          <div class="card feature">
+            <div class="fhead"><i data-lucide="navigation" class="fic"></i><h3 style="margin:0">Progressive breadcrumbs</h3></div>
+            <p>Deep drilling — env &rsaquo; cluster &rsaquo; pod — within a single canvas tab.</p>
+            <div class="mini-flow"><span class="chip">prod-east-1</span><span class="arr">&rsaquo;</span><span class="chip">k8s-cluster-a</span><span class="arr">&rsaquo;</span><span class="chip accent">auth-service</span></div>
+          </div>
+          <div class="card feature">
+            <div class="fhead"><i data-lucide="shield-alert" class="fic"></i><h3 style="margin:0">SOC2 auditor evidence</h3></div>
+            <p>On-demand compliance drift &amp; CVE remediation reports.</p>
+            <div class="mini-flow"><span class="chip">SOC2_CC7.1.pdf</span><span class="badge ok">auditor pass</span></div>
+          </div>
+          <div class="card feature">
+            <div class="fhead"><i data-lucide="message-square" class="fic"></i><h3 style="margin:0">Unified support hub</h3></div>
+            <p>Direct correlation of customer tickets to SRE telemetry.</p>
+            <div class="mini-flow"><span class="chip warn" style="color:var(--warn);background:var(--warn-dim);border-color:transparent">SLA: 12m</span><span class="arr">&harr;</span><span class="chip accent">SRE context</span></div>
+          </div>
+        </div>
+
+        <details class="dive">
+          <summary><i data-lucide="bot"></i><span>Pattern spec — Ask AI contextual assistant</span><i data-lucide="chevron-right" class="chev"></i></summary>
+          <div class="dive-body">
+            <p><strong>One reusable pattern, never re-invented per page.</strong> Always consistent: a bottom chat input bar, inline context history that scrolls under (keeping the canvas visible), and a reference-attaching mechanism showing exactly which logs, metrics or clusters are in context.</p>
+            <ul>
+              <li><strong>Incident view</strong> — remediation mode: proposes shell command patches, script snippets, 1-click execution templates.</li>
+              <li><strong>Metrics view</strong> — exploratory mode: explains anomalies, runs correlation SQL/PromQL, analyzes trends.</li>
+              <li><strong>Signals view</strong> — suggests query filter syntax, parses complex JSON logs, maps trace spans.</li>
+              <li><strong>Alerts view</strong> — helps configure thresholds, group alerts, tune noise reduction.</li>
+            </ul>
+            <p><strong>Sign-off:</strong> Matt approved documenting this as one feature with distinct surface behaviors — prevents developer duplication, guarantees one visual standard.</p>
+          </div>
+        </details>
+
+        <details class="dive">
+          <summary><i data-lucide="git-commit"></i><span>Pattern spec — Incident Causal Chain &amp; SLO Budget view</span><i data-lucide="chevron-right" class="chev"></i></summary>
+          <div class="dive-body">
+            <p><strong>Cause &rarr; Effect &rarr; Impact chain:</strong> a visual flow mapping the trigger root (e.g. database disk spike) through the immediate side effect (latency spike) to the customer-facing impact.</p>
+            <ul>
+              <li><strong>Before / Now metrics</strong> — side-by-side comparison of baseline vs. degraded state, rendered in mono.</li>
+              <li><strong>Confidence-scored "What changed" list</strong> — deployments, commits and config toggles ranked by correlation score.</li>
+              <li><strong>SLO error-budget bars</strong> — budget depletion and burn-rate gauges.</li>
+            </ul>
+            <p><strong>Degraded state:</strong> without the Deployment Intelligence agent, the view falls back to time-based event logs; confidence scores are downgraded and the UI urges connecting the agent.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ==================== 08 MODULE TEMPLATE ==================== -->
+      <section class="slide" id="s-template" data-phase="STRUCTURE" data-label="08 · MODULE TEMPLATE">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Structure / 08</span></div>
+        <h2>Reusable module navigation template</h2>
+        <p class="lede">One template, three modules. Learn the layout once in Review &amp; Manage and it carries over to Monitor and Support unchanged: KPI row &rarr; sub-nav tabs &rarr; workspace. Switch modules to see the same skeleton re-skinned by data alone.</p>
+
+        <div class="tabs" id="tpl-tabs"></div>
+
+        <div class="tpl-wrap">
+          <div class="shell">
+            <div class="shell-chrome">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span class="url" id="tpl-url">app.rtifact.io/#/review</span>
+            </div>
+            <div class="shell-body">
+              <div class="shell-side" id="tpl-side"></div>
+              <div class="shell-main" id="tpl-main"></div>
+            </div>
+          </div>
+
+          <div class="card contract">
+            <span class="micro">Template contract</span>
+            <h3>Layout constraints</h3>
+            <ul style="margin:6px 0 0;padding-left:16px">
+              <li><strong>KPI row:</strong> exactly 3 priority metrics reflecting real-time state — never more.</li>
+              <li><strong>Sub-nav:</strong> horizontal borderless tabs, left aligned, maximum 4 sub-views to prevent overflow.</li>
+              <li><strong>Drill-down harmony:</strong> level 1 is the sub-nav tab; levels 2–3 render as routed pages with breadcrumbs — never modals.</li>
+              <li><strong>Consistency paradigm:</strong> identical skeleton across all three modules, so the learning curve transfers on first use.</li>
+            </ul>
+          </div>
+        </div>
+
+        <details class="dive">
+          <summary><i data-lucide="layout"></i><span>Deep dive — per-module navigation spec</span><i data-lucide="chevron-right" class="chev"></i></summary>
+          <div class="dive-body">
+            <p><strong>Review &amp; Manage</strong> · KPI row: Monitored Assets | Compliance Score | Active Findings · Tabs: Asset Inventory, Compliance Audit, Remediation Center, SOC2 Reports.</p>
+            <p><strong>Monitor</strong> · KPI row: Active Incidents | Global MTTR | Noise Reduction Rate · Tabs: Telemetry Signals, Alerts Workspace, Incidents Board, Synthetics Control.</p>
+            <p><strong>Support</strong> · KPI row: Open Cases | Avg SLA Response | Customer CSAT · Tabs: Ticket Queue, System State Correlation, Client Response Panel.</p>
+            <p><strong>Why:</strong> Sunil and Matt want the platform to feel instantly familiar as users switch between modules — the reusable template is that guarantee.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ==================== 09 IA ==================== -->
+      <section class="slide" id="s-ia" data-phase="STRUCTURE" data-label="09 · INFORMATION ARCHITECTURE">
+        <div class="eyebrow"><span class="dot"></span><span class="micro">Structure / 09</span></div>
+        <h2>Information architecture — peer modules</h2>
+        <p class="lede">Connect first, then one Overview routing into three peer business modules. Every entity gets a stable URL; every detail view is a routed page with breadcrumbs.</p>
+
+        <div class="ia">
+          <div class="card ia-card">
+            <div class="mod-head" style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><i data-lucide="plug" style="width:15px;height:15px;color:var(--accent)"></i><h3 style="margin:0">Level 0 — Connect &amp; onboard</h3><span class="badge" style="margin-left:auto">entry point</span></div>
+            <p class="mod-sub" style="color:var(--ink-1);font-size:12px;margin:0 0 10px">Telemetry source onboarding. Establishes the link before redirecting to the live Overview.</p>
+            <div class="grid g2" style="gap:10px">
+              <div class="subcard"><strong style="font-weight:500;font-size:12.5px">A · Self-serve</strong><span class="ia-item note" style="display:block;color:var(--ink-2);font-size:11.5px;margin-top:2px">CloudFormation templates &amp; agent CLI copy-paste scripts.</span></div>
+              <div class="subcard"><strong style="font-weight:500;font-size:12.5px">B · Enterprise-assisted</strong><span style="display:block;color:var(--ink-2);font-size:11.5px;margin-top:2px">Multi-account guided setup &amp; architecture check-ins.</span></div>
+            </div>
+          </div>
+
+          <div class="ia-link"></div>
+
+          <div class="card ia-card">
+            <div style="display:flex;align-items:center;gap:8px"><i data-lucide="layout-dashboard" style="width:15px;height:15px;color:var(--accent)"></i><h3 style="margin:0">Level 1 — Overview dashboard</h3><span class="badge accent" style="margin-left:auto">primary workspace</span></div>
+            <p style="color:var(--ink-1);font-size:12px;margin:6px 0 0">Dynamic cost / risk / optimization metrics, grouped alert feed, active incidents.</p>
+          </div>
+
+          <div class="ia-modules">
+            <div class="ia-cols">
+              <div class="card ia-col">
+                <div class="mod-head"><i data-lucide="shield-check"></i><h3 style="margin:0;font-size:14px">Review &amp; Manage</h3></div>
+                <p class="mod-sub">DevOps — provisioning, compliance audits, asset findings.</p>
+                <div class="ia-item"><span class="n">1</span><div>Asset inventory<span class="note">EC2 / VM / Kubernetes configs</span></div></div>
+                <div class="ia-item"><span class="n">2</span><div>Findings<span class="note">Vulnerabilities &amp; compliance drift</span></div></div>
+                <div class="ia-item"><span class="n">3</span><div>Automation path<span class="note">6-D scope: org / project / env / cluster / namespace / service · silences &amp; templates</span></div></div>
+              </div>
+              <div class="card ia-col">
+                <div class="mod-head"><i data-lucide="activity"></i><h3 style="margin:0;font-size:14px">Monitor</h3></div>
+                <p class="mod-sub">SRE — live signals, correlation, incident triage.</p>
+                <div class="ia-item"><span class="n">1</span><div>Signals<span class="note">Unified logs / metrics / traces</span></div></div>
+                <div class="ia-item"><span class="n">2</span><div>Alerts workspace<span class="note">Triage hub · 8 ops metrics · cloud-agnostic grid · goals scorecard · kanban</span></div></div>
+                <div class="ia-item"><span class="n">3</span><div>Incidents<span class="note">Root-cause diagnostics</span></div></div>
+                <div class="ia-item"><span class="n">4</span><div>Synthetic intelligence<span class="note">P99 latency · multi-region uptime checks</span></div></div>
+              </div>
+              <div class="card ia-col">
+                <div class="mod-head"><i data-lucide="message-square"></i><h3 style="margin:0;font-size:14px">Support</h3></div>
+                <p class="mod-sub">Customer-facing — tickets mapped to SRE context.</p>
+                <div class="ia-item"><span class="n">1</span><div>Case list<span class="note">Severity / SLA sort</span></div></div>
+                <div class="ia-item"><span class="n">2</span><div>Case detail<span class="note">Correlated state logs at complaint timestamp</span></div></div>
+                <div class="ia-item"><span class="n">3</span><div>Resolution<span class="note">Safe hotfix triggers — low-anxiety fixes</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <span class="micro">Shared workflow spine — every operational object</span>
+          <div class="spine">
+            <span class="st" style="color:var(--ok);border-color:transparent;background:var(--ok-dim)">Trigger</span><span class="arrow">&rarr;</span>
+            <span class="st" style="color:var(--ok);border-color:transparent;background:var(--ok-dim)">Detect</span><span class="arrow">&rarr;</span>
+            <span class="st" style="color:var(--accent);border-color:transparent;background:var(--accent-dim)">Assess</span><span class="arrow">&rarr;</span>
+            <span class="st">Act</span><span class="arrow">&rarr;</span>
+            <span class="st">Inform</span><span class="arrow">&rarr;</span>
+            <span class="st">Validate</span>
+          </div>
+          <p style="color:var(--ink-2);font-size:11.5px;margin:10px 0 0">Validate is never dropped — resolution isn't done until recovery is verified. Each stage attributes AI vs. human contribution, feeding the ROI page.</p>
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+          <span class="badge ok">sanity-check sign-off: Matt (CEO) &amp; Sunil (DevOps)</span>
+          <span class="badge accent">ready for ideate handoff</span>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Data — migrated 1:1 from the canvas version
+   ============================================================ */
+const PHASES = ['Detect & Alert', 'Triage & Assess', 'Investigate & Act', 'Evaluate & Report'];
+
+const JOURNEYS = {
+  priya: {
+    name: 'Priya', role: 'SRE', leverage: 1,
+    doing: [
+      'Receives PagerDuty alert on phone, opens laptop to investigate.',
+      'Navigates Environment \u203a Cluster \u203a Asset to find context.',
+      "Reviews AI's root cause analysis, approves 1-click remediation.",
+      'Reviews system health recovery, auto-generates executive report.'
+    ],
+    feeling: [
+      ['"Is this a real emergency or just another false positive?"', 'Anxious'],
+      ['"Where do I start? I need to see logs and metrics together."', 'Focused'],
+      ['"Oh, the AI already found the DB lock. Let\u2019s execute the fix."', 'Relieved'],
+      ['"I have quantifiable data to show Raj we saved 2 hours."', 'Confident']
+    ],
+    stress: [70, 95, 30, 10],
+    moods: ['Anxious', 'Peak stress', 'Relief point', 'Confident'],
+    pains: [
+      ['Alert fatigue', 'Unclear legacy-tool context'],
+      ['3+ tab context-switching', 'Modal overlays blocking data'],
+      ['Manual detective work', 'Fear of breaking production'],
+      ['Manual post-mortems', 'Difficulty proving ROI to leadership']
+    ],
+    gains: [
+      ['Smart alert grouping', 'Silent anomaly detection'],
+      ['Unified telemetry view', 'Progressive breadcrumb drilling'],
+      ['AI investigator isolating the issue', 'Trigger-condition-action remediation'],
+      ['Automated audit logs', 'Executive ROI dashboard']
+    ]
+  },
+  raj: {
+    name: 'Raj', role: 'VP', leverage: 3,
+    doing: [
+      'Notified of SLA-critical database deadlock alert via Slack integrations.',
+      'Opens the high-level dashboard to understand customer impact radius.',
+      'Monitors remediation progress and tracks SLA budget decay in real time.',
+      'Exports automated SOC2 auditor report and validates downtime ROI savings.'
+    ],
+    feeling: [
+      ['"Is this going to affect our Q3 SLA guarantees?"', 'Concerned'],
+      ['"I need to know the blast radius before clients start calling."', 'Anxious'],
+      ['"Is the team working on the right fix or just guessing?"', 'High stress'],
+      ['"Excellent, we saved $12k in SLA penalties and MTTR was halved."', 'Satisfied']
+    ],
+    stress: [40, 60, 80, 15],
+    moods: ['Concerned', 'Anxious', 'Peak SLA stress', 'Satisfied'],
+    pains: [
+      ['High SLA penalty exposure', 'Lack of clear cost indicators'],
+      ['Unclear dashboard layouts', 'Hard-to-parse customer blast radius'],
+      ['No direct eyes on SRE remediation speed', 'Lack of developer productivity insights'],
+      ['Time-consuming manual compliance audits', 'Difficulty proving platform ROI value']
+    ],
+    gains: [
+      ['Real-time SLA tracking integrations', 'Automated cost dashboards'],
+      ['Overview page displaying customer impact', 'Consolidated tenant mapping widgets'],
+      ['Live MTTR status tracking tools', 'Zero-blame post-mortem builder'],
+      ['One-click SOC2 auditor exports', 'Quantified downtime ROI savings']
+    ]
+  },
+  arjun: {
+    name: 'Arjun', role: 'Junior', leverage: 2,
+    doing: [
+      'Paged as secondary on-call support for network regression alert.',
+      'Tries to find the right metrics dashboard from corporate list.',
+      'Reviews SRE automated suggestions and executes a vetted playbook restart script.',
+      'Confirms cluster metrics return to baseline and documents findings.'
+    ],
+    feeling: [
+      ['"Oh no, an alert. I hope I don\u2019t have to restart the database."', 'Anxious'],
+      ['"Which of these 50 graphs should I look at first?"', 'Confused'],
+      ['"SRE vetted this script, so I feel safe executing it."', 'Nervous but guided'],
+      ['"That was so easy. I fixed it without waking Priya."', 'Confident']
+    ],
+    stress: [65, 85, 90, 20],
+    moods: ['Anxious', 'Confused', 'Peak execution stress', 'Confident'],
+    pains: [
+      ['Lack of operational confidence', 'Alert fatigue on secondary rota'],
+      ['Too many scattered telemetry dashboards', 'No clear connection between dashboards'],
+      ['Fear of a critical mistake in production', 'Complex command line executions needed'],
+      ['Difficulty documenting post-mortems', 'Waking senior SRE partners needlessly']
+    ],
+    gains: [
+      ['Contextual alert grouping', 'Clear incident severity triage'],
+      ['Unified temporal telemetry graph', 'Integrated logs and traces view'],
+      ['SRE-vetted runbooks and playbooks', 'Safe dry-run action previews'],
+      ['Auto-generated zero-blame post-mortems', 'Quantified baseline verification']
+    ]
+  },
+  sarah: {
+    name: 'Sarah', role: 'Support', leverage: 1,
+    doing: [
+      'Receives escalations from premium clients reporting high latency.',
+      'Opens Support Hub to correlate chat reports with tenant health dashboard.',
+      'Launches client-isolated diagnosis tool and triggers a tenant-restart action.',
+      'Updates the customer, closes the support ticket, and records MTTR saving.'
+    ],
+    feeling: [
+      ['"Customers are angry. Is this tenant-specific or a system issue?"', 'Stressed'],
+      ['"I need client-isolated data immediately to prevent SLA breach."', 'Focused'],
+      ['"I see query timeout anomalies. Triggering tenant restart."', 'Peak stress'],
+      ['"Latency resolved! Support solved it without SRE escalation."', 'Relieved']
+    ],
+    stress: [50, 75, 85, 15],
+    moods: ['Stressed', 'Focused', 'Peak ticket triage', 'Relieved'],
+    pains: [
+      ['Customer escalation anxiety', 'Status page lag'],
+      ['No client-isolated health details', 'Slow engineering feedback loop to support'],
+      ['Fear of executing wrong server commands', 'Manual customer update procedures'],
+      ['Post-outage customer report generation', 'Hard to prove ticket resolution impact']
+    ],
+    gains: [
+      ['Auto Slack integration logs', 'Customer anomaly filters'],
+      ['Isolated tenant diagnostic widgets', 'Real-time SRE issue linkage view'],
+      ['Vetted support playbooks', 'Safe tenant-isolated hotfixes'],
+      ['SLA MTTR dashboards', 'Automated template resolution text']
+    ]
+  }
+};
+
+const MODULES = {
+  review: {
+    label: 'Review & Manage', icon: 'shield-check', route: '#/review',
+    kpis: [
+      { k: 'Monitored assets', v: '142', u: 'monitored', tone: 'accent' },
+      { k: 'Compliance score', v: '98.2%', u: 'SOC2 Type II', tone: 'ok' },
+      { k: 'Active findings', v: '14', u: 'unresolved', tone: 'crit' }
+    ],
+    tabs: ['Asset Inventory', 'Compliance Audit', 'Remediation Center', 'SOC2 Reports'],
+    side: ['Overview', 'Review & Manage', 'Monitor', 'Support'], on: 1
+  },
+  monitor: {
+    label: 'Monitor', icon: 'activity', route: '#/monitor',
+    kpis: [
+      { k: 'Active incidents', v: '3', u: '1 SLA at risk', tone: 'crit' },
+      { k: 'Global MTTR', v: '18m', u: '\u221242% this qtr', tone: 'ok' },
+      { k: 'Noise reduction', v: '87%', u: 'alerts grouped', tone: 'accent' }
+    ],
+    tabs: ['Telemetry Signals', 'Alerts Workspace', 'Incidents Board', 'Synthetics Control'],
+    side: ['Overview', 'Review & Manage', 'Monitor', 'Support'], on: 2
+  },
+  support: {
+    label: 'Support', icon: 'message-square', route: '#/support',
+    kpis: [
+      { k: 'Open cases', v: '26', u: '4 near SLA', tone: 'crit' },
+      { k: 'Avg SLA response', v: '12m', u: 'target 15m', tone: 'ok' },
+      { k: 'Customer CSAT', v: '94%', u: 'rolling 30d', tone: 'accent' }
+    ],
+    tabs: ['Ticket Queue', 'System State Correlation', 'Client Response Panel'],
+    side: ['Overview', 'Review & Manage', 'Monitor', 'Support'], on: 3
+  }
+};
+
+const SIDE_ICONS = ['layout-dashboard', 'shield-check', 'activity', 'message-square'];
+
+/* ============================================================
+   Renderers
+   ============================================================ */
+const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+function sentimentSVG(p) {
+  const xs = [100, 300, 500, 700];
+  const pts = p.stress.map((s, i) => [xs[i], 112 - s * 0.92]);
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+    const cx = (x0 + x1) / 2;
+    d += ` C ${cx} ${y0}, ${cx} ${y1}, ${x1} ${y1}`;
+  }
+  const dots = pts.map(([x, y], i) => {
+    const peak = p.stress[i] === Math.max(...p.stress);
+    return `<circle cx="${x}" cy="${y}" r="4.5" fill="${peak ? 'var(--crit)' : 'var(--accent)'}"/>` +
+      `<text x="${x}" y="${y - 10}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="var(--ink-1)">${p.stress[i]}%</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 800 128" width="100%" height="86" preserveAspectRatio="none" role="img" aria-label="Stress curve">
+    <line x1="40" y1="112" x2="760" y2="112" stroke="var(--border-0)" stroke-width="1"/>
+    <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2"/>${dots}</svg>`;
+}
+
+function renderJourney(key) {
+  const p = JOURNEYS[key];
+  const lev = p.leverage;
+  const cell = (i, inner) => `<div class="jcell${i === lev ? ' lev' : ''}">${inner}</div>`;
+
+  const heads = PHASES.map((ph, i) =>
+    `<div class="jcell head${i === lev ? ' lev' : ''}"><span class="phase-num">${i + 1}</span><strong style="font-weight:500;font-size:12.5px">${ph}</strong>${i === lev ? '<span class="badge accent" style="display:inline-flex;margin-top:8px">highest leverage</span>' : ''}</div>`).join('');
+
+  const doing = p.doing.map((t, i) => cell(i, `<span style="font-size:12.5px">${esc(t)}</span>`)).join('');
+  const feel = p.feeling.map(([q, m], i) => cell(i, `<span class="think" style="font-size:12.5px">${esc(q)}</span><span class="mood badge">${m}</span>`)).join('');
+  const pains = p.pains.map((arr, i) => cell(i, arr.map(t => `<span class="tag pain">${esc(t)}</span>`).join(''))).join('');
+  const gains = p.gains.map((arr, i) => cell(i, arr.map(t => `<span class="tag gain">${esc(t)}</span>`).join('') + (i === lev ? '<span class="badge accent" style="margin-top:8px;display:inline-flex">highest-leverage focus</span>' : ''))).join('');
+
+  const sentLabels = p.moods.map((m, i) => `<div><span class="m" style="${p.stress[i] === Math.max(...p.stress) ? 'color:var(--crit)' : ''}">${m}</span><br><span class="s mono">stress ${p.stress[i]}%</span></div>`).join('');
+
+  document.getElementById('journey-out').innerHTML = `
+    <div class="journey tpl-fade">
+      <div class="jrow"><div class="jcell rowlbl head"><span class="micro" style="margin:0">Phase</span></div>${heads}</div>
+      <div class="jrow"><div class="jcell rowlbl"><i data-lucide="activity"></i><span style="font-size:12px">Doing</span></div>${doing}</div>
+      <div class="jrow"><div class="jcell rowlbl"><i data-lucide="heart"></i><span style="font-size:12px">Thinking / feeling</span></div>${feel}</div>
+      <div class="jrow"><div class="jcell rowlbl"><i data-lucide="waves"></i><span style="font-size:12px">Sentiment</span></div>
+        <div class="sentiment-wrap">${sentimentSVG(p)}<div class="sent-labels">${sentLabels}</div></div></div>
+      <div class="jrow"><div class="jcell rowlbl"><i data-lucide="x-circle"></i><span style="font-size:12px">Pains</span></div>${pains}</div>
+      <div class="jrow"><div class="jcell rowlbl"><i data-lucide="check-circle"></i><span style="font-size:12px">Gains</span></div>${gains}</div>
+    </div>`;
+  lucide.createIcons();
+
+  document.querySelectorAll('#journey-tabs .tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.key === key));
+}
+
+function renderModule(key) {
+  const m = MODULES[key];
+  document.getElementById('tpl-url').textContent = 'app.rtifact.io/' + m.route;
+
+  document.getElementById('tpl-side').innerHTML = m.side.map((s, i) =>
+    `<span class="si${i === m.on ? ' on' : ''}"><i data-lucide="${SIDE_ICONS[i]}"></i>${s}</span>`).join('');
+
+  const kpis = m.kpis.map(k =>
+    `<div class="kpi"><span class="k">${k.k}</span><span class="v">${k.v}<span class="u ${k.tone}">${k.u}</span></span></div>`).join('');
+
+  const tabs = m.tabs.map((t, i) => `<span class="${i === 0 ? 'on' : ''}">${t}</span>`).join('');
+
+  document.getElementById('tpl-main').innerHTML = `
+    <div class="tpl-fade">
+      <div class="shell-title"><span class="t"><i data-lucide="${m.icon}"></i>${m.label}</span><span class="micro" style="margin:0;font-size:10px">module namespace</span></div>
+      <div class="kpis" style="margin-top:12px">${kpis}</div>
+      <div class="subnav" style="margin-top:12px">${tabs}</div>
+      <div class="workspace" style="margin-top:12px"><span class="micro" style="margin:0;font-size:10px">dynamic sub-module content panel</span></div>
+    </div>`;
+  lucide.createIcons();
+
+  document.querySelectorAll('#tpl-tabs .tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.key === key));
+}
+
+/* ============================================================
+   Navigation: scrollspy, breadcrumb, stage rail, keyboard
+   ============================================================ */
+const sections = Array.from(document.querySelectorAll('section.slide'));
+const navItems = Array.from(document.querySelectorAll('.nav-item'));
+const PHASE_ORDER = ['DISCOVER', 'DEFINE', 'STRUCTURE'];
+let currentIndex = 0;
+
+function setActive(idx) {
+  currentIndex = idx;
+  const sec = sections[idx];
+  const phase = sec.dataset.phase;
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.target === sec.id));
+  document.getElementById('crumb-phase').textContent = phase;
+  document.getElementById('crumb-leaf').textContent = sec.dataset.label;
+  document.getElementById('counter').textContent =
+    String(idx + 1).padStart(2, '0') + ' / ' + String(sections.length).padStart(2, '0');
+
+  const pi = PHASE_ORDER.indexOf(phase);
+  document.querySelectorAll('#stage-rail .stage').forEach((el, i) => {
+    el.classList.remove('done', 'current');
+    if (pi === -1) return;               // intro: all hollow
+    if (i < pi) el.classList.add('done');
+    else if (i === pi) el.classList.add('current');
+  });
+}
+
+function goTo(idx) {
+  idx = Math.max(0, Math.min(sections.length - 1, idx));
+  sections[idx].scrollIntoView({ block: 'start' });
+  setActive(idx);
+}
+
+navItems.forEach(n => n.addEventListener('click', () => {
+  const idx = sections.findIndex(s => s.id === n.dataset.target);
+  if (idx > -1) goTo(idx);
+}));
+
+const spy = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sections.indexOf(e.target);
+      if (idx > -1) setActive(idx);
+    }
+  });
+}, { rootMargin: '-45% 0px -50% 0px' });
+sections.forEach(s => spy.observe(s));
+
+window.addEventListener('keydown', (e) => {
+  if (e.target.closest('input, select, textarea')) return;
+  if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === 'j') { e.preventDefault(); goTo(currentIndex + 1); }
+  else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'k') { e.preventDefault(); goTo(currentIndex - 1); }
+  else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+  else if (e.key === 'End') { e.preventDefault(); goTo(sections.length - 1); }
+  else if (e.key.toLowerCase() === 't') { toggleTheme(); }
+});
+
+/* ---------- Theme ---------- */
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  root.dataset.theme = next;
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon');
+  lucide.createIcons();
+}
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+/* ---------- Init ---------- */
+function buildTabs(containerId, data, labels, onPick, first) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = Object.keys(data).map(k =>
+    `<button class="tab" data-key="${k}">${labels(k)}</button>`).join('');
+  wrap.querySelectorAll('.tab').forEach(b =>
+    b.addEventListener('click', () => onPick(b.dataset.key)));
+  onPick(first);
+}
+
+buildTabs('journey-tabs', JOURNEYS, k => `${JOURNEYS[k].name} · ${JOURNEYS[k].role}`, renderJourney, 'priya');
+buildTabs('tpl-tabs', MODULES, k => MODULES[k].label, renderModule, 'review');
+setActive(0);
+lucide.createIcons();
+</script>
+</body>
+</html>
